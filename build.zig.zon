@@ -1,0 +1,21 @@
+.{
+    .name = .zig_png_examples,
+    .version = "0.1.0",
+    .fingerprint = 0x9202080994b7a9ff,
+    .minimum_zig_version = "0.15.0",
+    .dependencies = .{
+        .png = .{
+            .url = "https://github.com/PhilipLudington/zig-png/archive/main.tar.gz",
+            .hash = "122014908ba88146665b30c0fb3fa04860430b3ccb081fd3608081333ba68e6c292f",
+        },
+        .sdl = .{
+            .url = "git+https://github.com/castholm/SDL.git#887fa805e40d5c7bb3955ae69b89ed566c6a0471",
+            .hash = "sdl-0.4.0+3.4.0-SDL--rq2owEZsySGuHCuVJ9naEvH3i3e_pyUIjziBtJ-",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
