@@ -196,7 +196,15 @@ fn convertToRgba(allocator: std.mem.Allocator, image: *const png.Image) ![]u8 {
 
     for (0..height) |y| {
         for (0..width) |x| {
-            const pixel = image.getPixel(@intCast(x), @intCast(y));
+            const pixel = image.getPixel(@intCast(x), @intCast(y)) catch {
+                // Out of bounds - fill with magenta
+                const out_idx = (y * width + x) * 4;
+                rgba[out_idx + 0] = 255;
+                rgba[out_idx + 1] = 0;
+                rgba[out_idx + 2] = 255;
+                rgba[out_idx + 3] = 255;
+                continue;
+            };
             const out_idx = (y * width + x) * 4;
 
             switch (color_type) {
@@ -301,7 +309,7 @@ fn savePng(allocator: std.mem.Allocator, pixels: []const u8, width: u32, height:
     };
 
     // Allocate output buffer
-    const max_size = png.maxEncodedSize(header);
+    const max_size = try png.maxEncodedSize(header);
     const output = try allocator.alloc(u8, max_size);
     defer allocator.free(output);
 
