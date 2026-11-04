@@ -1,5 +1,6 @@
 const std = @import("std");
 const png = @import("png");
+const convertToRgba = @import("rgba.zig").convertToRgba;
 const c = @cImport({
     @cInclude("SDL3/SDL.h");
 });
@@ -308,84 +309,6 @@ fn loadFullImage(allocator: std.mem.Allocator, renderer: *c.SDL_Renderer, dir_pa
         .width = w,
         .height = h,
     };
-}
-
-fn convertToRgba(allocator: std.mem.Allocator, image: *const png.Image) ![]u8 {
-    const width = image.width();
-    const height = image.height();
-    const rgba = try allocator.alloc(u8, width * height * 4);
-    errdefer allocator.free(rgba);
-
-    const color_type = image.header.color_type;
-
-    for (0..height) |y| {
-        for (0..width) |x| {
-            const out_idx = (y * width + x) * 4;
-
-            // getPixel now returns an error if out of bounds
-            const pixel = image.getPixel(@intCast(x), @intCast(y)) catch {
-                // Out of bounds - fill with magenta
-                rgba[out_idx + 0] = 255;
-                rgba[out_idx + 1] = 0;
-                rgba[out_idx + 2] = 255;
-                rgba[out_idx + 3] = 255;
-                continue;
-            };
-
-            switch (color_type) {
-                .grayscale => {
-                    rgba[out_idx + 0] = pixel[0];
-                    rgba[out_idx + 1] = pixel[0];
-                    rgba[out_idx + 2] = pixel[0];
-                    rgba[out_idx + 3] = 255;
-                },
-                .grayscale_alpha => {
-                    rgba[out_idx + 0] = pixel[0];
-                    rgba[out_idx + 1] = pixel[0];
-                    rgba[out_idx + 2] = pixel[0];
-                    rgba[out_idx + 3] = pixel[1];
-                },
-                .rgb => {
-                    rgba[out_idx + 0] = pixel[0];
-                    rgba[out_idx + 1] = pixel[1];
-                    rgba[out_idx + 2] = pixel[2];
-                    rgba[out_idx + 3] = 255;
-                },
-                .rgba => {
-                    rgba[out_idx + 0] = pixel[0];
-                    rgba[out_idx + 1] = pixel[1];
-                    rgba[out_idx + 2] = pixel[2];
-                    rgba[out_idx + 3] = pixel[3];
-                },
-                .indexed => {
-                    if (image.palette) |pal| {
-                        const idx: usize = @intCast(pixel[0]);
-                        if (idx < pal.len) {
-                            const entry = pal[idx];
-                            rgba[out_idx + 0] = entry.r;
-                            rgba[out_idx + 1] = entry.g;
-                            rgba[out_idx + 2] = entry.b;
-                            rgba[out_idx + 3] = 255;
-                        } else {
-                            // Invalid palette index - use magenta for visibility
-                            rgba[out_idx + 0] = 255;
-                            rgba[out_idx + 1] = 0;
-                            rgba[out_idx + 2] = 255;
-                            rgba[out_idx + 3] = 255;
-                        }
-                    } else {
-                        // No palette - use gray
-                        rgba[out_idx + 0] = pixel[0];
-                        rgba[out_idx + 1] = pixel[0];
-                        rgba[out_idx + 2] = pixel[0];
-                        rgba[out_idx + 3] = 255;
-                    }
-                },
-            }
-        }
-    }
-
-    return rgba;
 }
 
 fn renderGrid(renderer: *c.SDL_Renderer, thumbnails: []const Thumbnail, selected: usize, scroll_y: i32) void {

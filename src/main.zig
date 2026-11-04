@@ -1,5 +1,6 @@
 const std = @import("std");
 const png = @import("png");
+const convertToRgba = @import("rgba.zig").convertToRgba;
 const c = @cImport({
     @cInclude("SDL3/SDL.h");
 });
@@ -185,71 +186,6 @@ fn loadPngTextureWithPixels(allocator: std.mem.Allocator, renderer: *c.SDL_Rende
         .height = height,
         .pixels = rgba_pixels,
     };
-}
-
-fn convertToRgba(allocator: std.mem.Allocator, image: *const png.Image) ![]u8 {
-    const width = image.width();
-    const height = image.height();
-    const rgba = try allocator.alloc(u8, width * height * 4);
-
-    const color_type = image.header.color_type;
-
-    for (0..height) |y| {
-        for (0..width) |x| {
-            const pixel = image.getPixel(@intCast(x), @intCast(y)) catch {
-                // Out of bounds - fill with magenta
-                const out_idx = (y * width + x) * 4;
-                rgba[out_idx + 0] = 255;
-                rgba[out_idx + 1] = 0;
-                rgba[out_idx + 2] = 255;
-                rgba[out_idx + 3] = 255;
-                continue;
-            };
-            const out_idx = (y * width + x) * 4;
-
-            switch (color_type) {
-                .grayscale => {
-                    rgba[out_idx + 0] = pixel[0];
-                    rgba[out_idx + 1] = pixel[0];
-                    rgba[out_idx + 2] = pixel[0];
-                    rgba[out_idx + 3] = 255;
-                },
-                .grayscale_alpha => {
-                    rgba[out_idx + 0] = pixel[0];
-                    rgba[out_idx + 1] = pixel[0];
-                    rgba[out_idx + 2] = pixel[0];
-                    rgba[out_idx + 3] = pixel[1];
-                },
-                .rgb => {
-                    rgba[out_idx + 0] = pixel[0];
-                    rgba[out_idx + 1] = pixel[1];
-                    rgba[out_idx + 2] = pixel[2];
-                    rgba[out_idx + 3] = 255;
-                },
-                .rgba => {
-                    rgba[out_idx + 0] = pixel[0];
-                    rgba[out_idx + 1] = pixel[1];
-                    rgba[out_idx + 2] = pixel[2];
-                    rgba[out_idx + 3] = pixel[3];
-                },
-                .indexed => {
-                    // Use palette lookup
-                    if (image.palette) |pal| {
-                        const idx = pixel[0];
-                        if (idx < pal.len) {
-                            const entry = pal[idx];
-                            rgba[out_idx + 0] = entry.r;
-                            rgba[out_idx + 1] = entry.g;
-                            rgba[out_idx + 2] = entry.b;
-                            rgba[out_idx + 3] = 255;
-                        }
-                    }
-                },
-            }
-        }
-    }
-
-    return rgba;
 }
 
 fn generateGradientTextureWithPixels(allocator: std.mem.Allocator, renderer: *c.SDL_Renderer, width: u32, height: u32) !TextureInfo {
