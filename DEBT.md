@@ -13,12 +13,14 @@
 `ArrayHashMap.put` without the allocator argument 0.16 requires. Zig 0.16 also writes fetched
 packages into a `zig-pkg/` folder at the repo root, which `.gitignore` does not list. Found while
 applying zig-png's getSample mail on `mail/2026-11-03-getsample-subbyte`; not paid there because
-porting the build and moving SDL to a 0.16-ready release is larger than that change. The repo also
-declares no AirTower gates (`.airtower.json` is absent), so `verify` cannot check either toolchain.
+porting the build and moving SDL to a 0.16-ready release is larger than that change. Since
+`tooling/zig015-wrappers` (2026-11-04) the AirTower wrappers (`run-build.sh`, `run-tests.sh`,
+`.airtower.json`) pin Zig 0.15 through `scripts/zig-path.sh`, and `.gitignore` lists `zig-pkg/`;
+that part of the payment is made.
 
 **Payment:** Move SDL to a castholm/SDL release that builds on 0.16, replace `linkLibrary` with the
-0.16 module API (`root_module.linkLibrary`), add `zig-pkg/` to `.gitignore`, raise
-`minimum_zig_version`, and add `.airtower.json` with build and test wrappers.
+0.16 module API (`root_module.linkLibrary`), raise `minimum_zig_version`, and point
+`scripts/zig-path.sh` at Zig 0.16.
 
 **Verified by:** `zig build` and `zig build test` with Zig 0.16.0 exit 0 — answer key: the Zig
 0.16.0 release notes' build-system changes.
