@@ -3,3 +3,10 @@ zig-out/
 *.o
 .DS_Store
 output.png
+
+# AirTower results
+.test-results.json
+.build-results.json
+
+# Zig 0.16 package cache
+zig-pkg/
