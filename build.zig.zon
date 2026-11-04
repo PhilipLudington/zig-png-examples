@@ -5,8 +5,8 @@
     .minimum_zig_version = "0.15.0",
     .dependencies = .{
         .png = .{
-            .url = "https://github.com/PhilipLudington/zig-png/archive/main.tar.gz",
-            .hash = "122014908ba88146665b30c0fb3fa04860430b3ccb081fd3608081333ba68e6c292f",
+            .url = "https://github.com/PhilipLudington/zig-png/archive/b301169641c206cac1d2108d703eb08485e1a002.tar.gz",
+            .hash = "N-V-__8AAKSEDABFRgbnB09sivLyH_Ex3La-8_wChtahoh4L",
         },
         .sdl = .{
             .url = "git+https://github.com/castholm/SDL.git#887fa805e40d5c7bb3955ae69b89ed566c6a0471",
