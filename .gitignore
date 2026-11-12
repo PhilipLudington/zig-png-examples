@@ -3,6 +3,7 @@ zig-out/
 *.o
 .DS_Store
 output.png
+/RESUME.md
 
 # AirTower results
 .test-results.json
